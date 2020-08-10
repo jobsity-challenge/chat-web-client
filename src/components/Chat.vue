@@ -1,19 +1,7 @@
 <template>
-  <v-container
-    fluid
-    style="max-height: 100%; min-height: 100%; overflow-y: hidden; position: relative;"
-    relative
-  >
-    <v-layout
-      row
-      wrap
-      align="top"
-      height="100%"
-      fill-height
-      style="position: absolute;width: 100%"
-      class="ma-0 pa-0 pb-6"
-    >
-      <v-col cols="3" style="height: 100%;" fill-height>
+  <v-container fluid class="container-style" relative>
+    <v-layout row wrap align="top" class="layout-style ma-0 pa-0 pb-6">
+      <v-col cols="12" lg="3" class="col-style">
         <v-card style="height: 100%; max-height: 100%; min-height: 100%;">
           <v-card-text style="height: calc(100% - 52px);overflow-y: scroll;">
             <v-divider></v-divider>
@@ -41,7 +29,10 @@
                     :key="item.id"
                   >
                     <v-list-item-avatar @click="doSwitch(item.id)">
-                      <v-icon>mdi-message-text</v-icon>
+                      <v-icon v-if="!item.writing">mdi-message-text</v-icon>
+                      <v-icon v-else color="success"
+                        >mdi-message-processing</v-icon
+                      >
                     </v-list-item-avatar>
                     <v-list-item-content @click="doSwitch(item.id)">
                       <v-list-item-title>
@@ -127,9 +118,11 @@
           </v-card-actions>
         </v-card>
       </v-col>
-      <v-col cols="6" v-if="currentChatroom" style="height: 100%;" fill-height>
+      <v-col cols="12" lg="6" v-if="currentChatroom" class="col-style">
         <v-card style="height: 100%; max-height: 100%; min-height: 100%;">
-          <v-card-text style="height: calc(100% - 86px);overflow-y: scroll; flex-direction:column-reverse; ">
+          <v-card-text
+            style="height: calc(100% - 86px);overflow-y: scroll; flex-direction:column-reverse; "
+          >
             <v-timeline align-top :dense="$vuetify.breakpoint.smAndDown">
               <v-timeline-item
                 v-for="item in currentMessages"
@@ -137,8 +130,10 @@
                 :color="item.owner === userId ? 'green lighten-1' : 'indigo'"
                 :left="item.owner !== userId"
                 :right="item.owner === userId"
-                :icon=" users[item.owner] &&
-                  users[item.owner].type === 3 ? 'mdi-robot' : 'mdi-account'
+                :icon="
+                  users[item.owner] && users[item.owner].type === 3
+                    ? 'mdi-robot'
+                    : 'mdi-account'
                 "
                 fill-dot
               >
@@ -169,11 +164,7 @@
           </v-card-text>
           <v-divider></v-divider>
           <v-card-actions>
-            <v-form
-              onSubmit="return false;"
-              style="width: 100%;"
-              ref="login"
-            >
+            <v-form onSubmit="return false;" style="width: 100%;" ref="login">
               <v-text-field
                 name="message"
                 :autocomplete="false"
@@ -182,6 +173,7 @@
                 label="Send your message to chatroom"
                 prepend-icon="mdi-message-processing-outline"
                 @click:append="doSendMessage(currentChatroom)"
+                @keydown="doKeyboard($event)"
                 @keyup.enter="doSendMessage(currentChatroom)"
                 append-icon="mdi-send"
               ></v-text-field>
@@ -199,8 +191,7 @@
           </v-card-actions>
         </v-card>
       </v-col>
-
-      <v-col cols="3" v-if="currentChatroom" style="height: 100%;" fill-height>
+      <v-col cols="12" lg="3" v-if="currentChatroom" class="col-style">
         <v-card
           fill-height
           style="height: 100%; max-height: 100%; min-height: 100%;overflow-y: hidden;position: relative"
@@ -217,10 +208,12 @@
             <v-list two-line>
               <v-list-item v-for="item in currentUsers" :key="item">
                 <v-list-item-avatar>
-                  <v-icon v-if="isOnlineUser(item)[1]" color="success"
+                  <v-icon v-if="activeUsers.indexOf(item) >= 0" color="success"
                     >mdi-lan-check</v-icon
                   >
-                  <v-icon v-else color="error">mdi-lan-disconnect</v-icon>
+                  <v-icon v-if="activeUsers.indexOf(item) < 0" color="error"
+                    >mdi-lan-disconnect</v-icon
+                  >
                 </v-list-item-avatar>
                 <v-list-item-content>
                   <v-list-item-title
@@ -291,7 +284,7 @@
 <script>
 import ChatService from "../services/chat";
 import { mapGetters } from "vuex";
-import { switchChatroom } from "../services/ioclient";
+import { switchChatroom, keyboardHandler } from "../services/ioclient";
 
 export default {
   name: "Chat",
@@ -304,6 +297,7 @@ export default {
       "currentUsers",
       "users",
       "currentMessages",
+      "state.activeUsers",
     ]),
   },
   data: () => ({
@@ -333,9 +327,6 @@ export default {
           this.$refs.createChatroom.reset();
         }
       }, 1);
-    },
-    isOnlineUser(user) {
-      return [Date.now(),this.$store.getters.isOnline(user)];
     },
     doChatroomRegister() {
       this.roomErrors = "";
@@ -492,6 +483,16 @@ export default {
 
       /* Read the image as Base64 */
       reader.readAsDataURL(selected);
+    },
+    doKeyboard(event) {
+      /* Ensure a chatroom is selected */
+      if (!this.$store.getters.currentChatroom) {
+        return;
+      }
+
+      console.log("SIII");
+      /* Call the keyboard handler */
+      keyboardHandler(event, this.$store.getters.currentChatroom, () => {});
     },
   },
 };
