@@ -173,7 +173,6 @@
               onSubmit="return false;"
               style="width: 100%;"
               ref="login"
-              v-model="validForm"
             >
               <v-text-field
                 name="message"
