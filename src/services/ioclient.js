@@ -85,8 +85,18 @@ export function connectSocket(token) {
 
   /* Handle user status change notification */
   _socket.on('message', (data) => {
-    /* Call to store the new message */
-    store.commit("doMessage", data);
+    /* Check if user owner information is preloaded */
+    let users = [];
+    if (!store.getters.users[data.owner] || !store.getters.users[data.owner].user) {
+      users.push(data.owner);
+    }
+
+    /* Call to load user information */
+    store.dispatch("callAccountsInfo", users)
+      .finally(() => {
+        /* Call to store the new message */
+        store.commit("doMessage", data);
+      });
   });
 }
 
@@ -137,13 +147,13 @@ export function switchChatroom(chatroom) {
         /* Get users from message owners */
         response.data.messages.forEach(value => {
           /* Check if the data is preloaded */
-          if(!store.getters.users[value.owner] || !store.getters.users[value.owner].user){
+          if (!store.getters.users[value.owner] || !store.getters.users[value.owner].user) {
             /* Check if the user ir in the previous list */
-            if(users.indexOf(value.owner)<0){
+            if (users.indexOf(value.owner) < 0) {
               users.push(value.owner);
             }
           }
-          return ;
+          return;
         });
 
         store.dispatch("callAccountsInfo", users)
