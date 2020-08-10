@@ -76,6 +76,18 @@ export function connectSocket(token) {
     /* Call to store the new chatroom */
     store.commit("doLeave", data);
   });
+
+  /* Handle user status change notification */
+  _socket.on('status', (data) => {
+    /* Call to store the new user status */
+    store.commit("doStatus", data);
+  });
+
+  /* Handle user status change notification */
+  _socket.on('message', (data) => {
+    /* Call to store the new message */
+    store.commit("doMessage", data);
+  });
 }
 
 /**
@@ -108,10 +120,28 @@ export function writingStatus(chatroom, status) {
  * @param {*} chatroom 
  */
 export function switchChatroom(chatroom) {
-  /* Ensure socket is valid */
-  if (_socket !== null) {
-    _socket.emit('switch', (err) => {
-      console.error(err);
-    });
-  }
+  return new Promise((resolve, reject) => {
+    /* Ensure socket is valid */
+    if (_socket !== null) {
+      /* Request chatroom switch */
+      _socket.emit('switch', { chatroom: chatroom }, (response) => {
+        if (response.error !== 0) {
+          return reject({ error: 'Error switching' });
+        }
+
+        /* Get for required users information */
+        const users = response.data.users.filter(value => {
+          return !store.getters.users[value] || !store.getters.users[value].user;
+        });
+        store.dispatch("callAccountsInfo", users)
+          .then(() => {
+
+            /* Load chat history */
+            store.commit("doSwitch", response.data);
+          }).catch(reject);
+      });
+    } else {
+      reject({ error: 'Invalid socket' });
+    }
+  })
 }
