@@ -1,5 +1,5 @@
 <template>
-  <v-app style="max-height: 100vh; min-height: 100vh; overflow-y: hidden;">
+  <v-app class="app-style">
     <vue-snotify></vue-snotify>
     <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
@@ -52,7 +52,7 @@
         </v-card>
       </v-menu>
     </v-app-bar>
-    <v-main style="max-height: 100%; min-height: 100%; height: 100%">
+    <v-main class="main-style">
       <router-view></router-view>
     </v-main>
   </v-app>
