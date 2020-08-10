@@ -5,7 +5,8 @@ export default {
       LOGIN: "/v1/accounts/login",
       REGISTER: "/v1/accounts/register",
       LOGOUT: "/v1/accounts/logout",
-      VALIDATE: "/v1/accounts/validate"
+      VALIDATE: "/v1/accounts/validate",
+      INFO: "/v1/accounts/info",
     }
   },
   CHAT: {
@@ -14,6 +15,7 @@ export default {
       CREATE_CHATROOM: "/v1/chat/rooms",
       JOIN_CHATROOM: "/v1/chat/rooms/join/",
       LEAVE_CHATROOM: "/v1/chat/rooms/leave/",
+      MESSAGE_CHATROOM: "/v1/chat/rooms/message/",
     }
   }
 }
