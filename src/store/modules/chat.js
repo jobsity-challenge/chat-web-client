@@ -41,6 +41,12 @@ const actions = {
 	 */
   callAccountsInfo(context, data) {
     return new Promise((resolve, reject) => {
+      /* If data is empty do nothing */
+      if (!data || data.length === 0) {
+        return resolve();
+      }
+
+      /* Load accounts info */
       AuthenticationService.info(data)
         .then(response => {
           context.commit("doAccountsInfo", response.data);
