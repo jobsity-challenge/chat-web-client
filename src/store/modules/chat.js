@@ -7,6 +7,7 @@ const state = {
   currentUsers: [],
   currentMessages: [],
   users: {},
+  activeUsers: [],
 };
 
 const getters = {
@@ -27,6 +28,9 @@ const getters = {
   },
   users: state => { /* Get all users information */
     return state.users;
+  },
+  activeUsers: state => { /* Get the active users */
+    return state.activeUsers;
   },
   isOnline: state => {
     return (user) => { /* Get if an user is online */
@@ -189,12 +193,14 @@ const mutations = {
 	 * Update user online status
 	 */
   doStatus(state, payload) {
-    let tmp = state.users[payload.user];
-    if (!tmp) {
-      tmp = {};
+    let tmp = state.activeUsers.indexOf(payload.user);
+
+    /* Update active users */
+    if (payload.status === 1 && tmp < 0) {
+      state.activeUsers.push(payload.user);
+    } else if (payload.status === 0 && tmp >= 0) {
+      state.activeUsers.splice(tmp, 1);
     }
-    tmp.online = payload.status === 1;
-    state.users[payload.user] = tmp;
   },
 
   /**
@@ -244,6 +250,21 @@ const mutations = {
 
     if (itr < state.myChatrooms.length) {
       state.myChatrooms[itr].msgs++;
+    }
+  },
+
+  /**
+   * Do writing, update in my chatrooms writing event
+   */
+  doWriting(state, payload) {
+    /* Check for my rooms */
+    let itr = 0;
+    while (itr < state.myChatrooms.length && state.myChatrooms[itr].id !== payload.chatroom) {
+      itr++;
+    }
+
+    if (itr < state.myChatrooms.length) {
+      state.myChatrooms[itr].writing = payload.status === 1;
     }
   },
 
