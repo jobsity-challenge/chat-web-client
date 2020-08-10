@@ -5,6 +5,10 @@ import { store } from '../store';
 /* Websocket connector */
 let _socket = null;
 
+/* Timer to handle writing events */
+let _lastKeyTime = 0;
+let _interval = -1;
+
 /**
  * Clear IMS event listeners
  */
@@ -34,7 +38,12 @@ export function connectSocket(token) {
     timeout: 5000,
     query: {
       token: token
-    }
+    },
+    reconnection: true,
+    reconnectionAttempts: Infinity,
+    reconnectionDelay: 1000,
+    reconnectionDelayMax: 5000,
+    randomizationFactor: 0.5
   });
 
   /* Handle connection event */
@@ -77,6 +86,13 @@ export function connectSocket(token) {
     store.commit("doLeave", data);
   });
 
+
+  /* Handle chatroom leave notification */
+  _socket.on('writing', (data) => {
+    /* Update writing status */
+    store.commit("doWriting", data);
+  });
+
   /* Handle user status change notification */
   _socket.on('status', (data) => {
     /* Call to store the new user status */
@@ -98,6 +114,51 @@ export function connectSocket(token) {
         store.commit("doMessage", data);
       });
   });
+}
+
+/**
+ * Function to handle keyboard event to detect writing event
+ * 
+ * @param {*} event 
+ * @param {*} chatroom 
+ * @param {*} cb 
+ */
+export function keyboardHandler(event, chatroom, cb) {
+  /* Prevent action on enter key */
+  if (event.key == "Enter") {
+    cb();
+    return;
+  }
+
+  /* If the interval is not running then create it */
+  if (_interval == -1) {
+    _interval = setInterval(() => {
+      /* Check if there is a difference of one second */
+      if (new Date().getTime() - _lastKeyTime > 1000) {
+        /* Clear the inteval */
+        clearInterval(_interval);
+        _interval = -1;
+
+        /* Send notification for stop writing */
+        if (_socket) {
+          _socket.emit('writing', { chatroom: chatroom, status: 0 }, (err) => {
+            console.error(err);
+          });
+        }
+      }
+    }, 300);
+
+    /* Send notification to start writing */
+    if (_socket) {
+      _socket.emit('writing', { chatroom: chatroom, status: 1 }, (err) => {
+        console.error(err);
+      });
+    }
+  }
+  else {
+    /* Update to current time */
+    _lastKeyTime = new Date().getTime();
+  }
 }
 
 /**
