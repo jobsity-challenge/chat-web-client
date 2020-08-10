@@ -12,7 +12,7 @@
             </v-alert>
           </v-card-text>
           <v-card-text>
-            <v-form ref="login" v-model="validForm">
+            <v-form onSubmit="return false;" ref="login" v-model="validForm">
               <v-text-field
                 name="email"
                 autocomplete="email"
