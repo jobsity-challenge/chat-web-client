@@ -11,6 +11,9 @@ import router from './router';
  * case is redirected to the login page
  */
 router.beforeEach((to, from, next) => {
+  /* Set page title */
+  document.title = "JobSity Challenge | " + to.meta.title;
+
   /* Check for requiresAuth metadata */
   if (to.matched.some(record => record.meta.requiresAuth)) {
     /* Check if user is not logged */
@@ -83,13 +86,13 @@ axios.interceptors.request.use((request) => {
 })
 
 /* Setup vue-snotify */
-import Snotify, {SnotifyPosition} from 'vue-snotify';
+import Snotify, { SnotifyPosition } from 'vue-snotify';
 import "vue-snotify/styles/material.css";
 
 const options = {
-	toast: {
-		position: SnotifyPosition.rightTop
-	}
+  toast: {
+    position: SnotifyPosition.rightTop
+  }
 }
 Vue.use(Snotify, options);
 
