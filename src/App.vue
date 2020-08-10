@@ -1,60 +1,83 @@
 <template>
-  <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
-    >
+  <v-app style="max-height: 100vh; min-height: 100vh; overflow-y: hidden;">
+    <vue-snotify></vue-snotify>
+    <v-app-bar app color="primary" dark>
       <div class="d-flex align-center">
         <v-img
           alt="Vuetify Logo"
           class="shrink mr-2"
           contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
+          src="https://pbs.twimg.com/profile_images/837760786466553856/ganu0Dms.jpg"
           transition="scale-transition"
           width="40"
         />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
+        <h1>JobSity Challenge</h1>
       </div>
-
       <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
+      <span v-if="!isLogged">
+        <v-btn class="mr-2" to="/login" text>
+          <span class="mr-2">Login</span>
+        </v-btn>
+        |
+        <v-btn class="ml-2" to="/register" text>
+          <span class="mr-2">Register</span>
+        </v-btn>
+      </span>
+      <v-menu v-if="isLogged" offset-y>
+        <template v-slot:activator="{ on }">
+          <v-btn icon v-on="on">
+            <v-icon>mdi-account-circle</v-icon>
+          </v-btn>
+        </template>
+        <v-card>
+          <v-list>
+            <v-list-item two-line>
+              <v-list-item-content>
+                <v-list-item-title>
+                  <h4 style="font-weight:bold;">{{ name }}</h4>
+                </v-list-item-title>
+                <v-list-item-subtitle>
+                  {{ about }}
+                </v-list-item-subtitle>
+              </v-list-item-content>
+            </v-list-item>
+            <v-divider></v-divider>
+            <v-list-item @click="doLogout">
+              <v-list-item-icon>
+                <v-icon>mdi-logout</v-icon>
+              </v-list-item-icon>
+              <v-list-item-title>Logout</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-card>
+      </v-menu>
     </v-app-bar>
-
-    <v-main>
-      <HelloWorld/>
+    <v-main style="max-height: 100%; min-height: 100%; height: 100%">
+      <router-view></router-view>
     </v-main>
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
+import { mapGetters } from "vuex";
+import router from "./router";
 
 export default {
-  name: 'App',
-
-  components: {
-    HelloWorld,
+  name: "App",
+  computed: {
+    ...mapGetters(["isLogged", "name", "about"]),
   },
-
   data: () => ({
     //
   }),
+  methods: {
+    doLogout() {
+      /* Call the alogout user method */
+      this.$store.dispatch("callLogoutUser").finally(() => {
+        /* Redirect to login view */
+        router.push("/login");
+      });
+    },
+  },
 };
 </script>
