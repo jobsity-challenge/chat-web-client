@@ -130,9 +130,22 @@ export function switchChatroom(chatroom) {
         }
 
         /* Get for required users information */
-        const users = response.data.users.filter(value => {
+        let users = response.data.users.filter(value => {
           return !store.getters.users[value] || !store.getters.users[value].user;
         });
+
+        /* Get users from message owners */
+        response.data.messages.forEach(value => {
+          /* Check if the data is preloaded */
+          if(!store.getters.users[value.owner] || !store.getters.users[value.owner].user){
+            /* Check if the user ir in the previous list */
+            if(users.indexOf(value.owner)<0){
+              users.push(value.owner);
+            }
+          }
+          return ;
+        });
+
         store.dispatch("callAccountsInfo", users)
           .then(() => {
 
