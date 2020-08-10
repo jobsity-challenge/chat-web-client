@@ -79,4 +79,19 @@ export default {
       }
     });
   },
+
+  /**
+   * Get accounts information
+   * 
+   * @param {*} users  List of users to retrieve the information
+   */
+  info(users) {
+    return axios.post(ServicesConfiguration.AUTH.SERVER + ServicesConfiguration.AUTH.SERVICES.INFO, {
+      users: users
+    }, {
+      headers: {
+        "Authorization": 'USER',
+      }
+    });
+  },
 };
