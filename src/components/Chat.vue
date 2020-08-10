@@ -137,7 +137,7 @@
                 :color="item.owner === userId ? 'green lighten-1' : 'indigo'"
                 :left="item.owner !== userId"
                 :right="item.owner === userId"
-                :icon="
+                :icon=" users[item.owner] &&
                   users[item.owner].type === 3 ? 'mdi-robot' : 'mdi-account'
                 "
                 fill-dot
