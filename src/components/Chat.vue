@@ -30,7 +30,7 @@
                   >
                     <v-list-item-avatar @click="doSwitch(item.id)">
                       <v-icon v-if="!item.writing">mdi-message-text</v-icon>
-                      <v-icon v-else color="success"
+                      <v-icon v-if="item.writing" color="success"
                         >mdi-message-processing</v-icon
                       >
                     </v-list-item-avatar>
@@ -208,10 +208,14 @@
             <v-list two-line>
               <v-list-item v-for="item in currentUsers" :key="item">
                 <v-list-item-avatar>
-                  <v-icon v-if="activeUsers.indexOf(item) >= 0" color="success"
+                  <v-icon
+                    v-if="activeUsers.indexOf(item) >= 0 || item === userId"
+                    color="success"
                     >mdi-lan-check</v-icon
                   >
-                  <v-icon v-if="activeUsers.indexOf(item) < 0" color="error"
+                  <v-icon
+                    v-if="activeUsers.indexOf(item) < 0 && item !== userId"
+                    color="error"
                     >mdi-lan-disconnect</v-icon
                   >
                 </v-list-item-avatar>
@@ -297,7 +301,7 @@ export default {
       "currentUsers",
       "users",
       "currentMessages",
-      "state.activeUsers",
+      "activeUsers",
     ]),
   },
   data: () => ({
@@ -490,7 +494,6 @@ export default {
         return;
       }
 
-      console.log("SIII");
       /* Call the keyboard handler */
       keyboardHandler(event, this.$store.getters.currentChatroom, () => {});
     },

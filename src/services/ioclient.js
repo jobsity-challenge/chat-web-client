@@ -131,7 +131,7 @@ export function keyboardHandler(event, chatroom, cb) {
   }
 
   /* If the interval is not running then create it */
-  if (_interval == -1) {
+  if (_interval === -1) {
     _interval = setInterval(() => {
       /* Check if there is a difference of one second */
       if (new Date().getTime() - _lastKeyTime > 1000) {
@@ -141,8 +141,7 @@ export function keyboardHandler(event, chatroom, cb) {
 
         /* Send notification for stop writing */
         if (_socket) {
-          _socket.emit('writing', { chatroom: chatroom, status: 0 }, (err) => {
-            console.error(err);
+          _socket.emit('writing', { chatroom: chatroom, status: 0 }, () => {
           });
         }
       }
@@ -150,8 +149,7 @@ export function keyboardHandler(event, chatroom, cb) {
 
     /* Send notification to start writing */
     if (_socket) {
-      _socket.emit('writing', { chatroom: chatroom, status: 1 }, (err) => {
-        console.error(err);
+      _socket.emit('writing', { chatroom: chatroom, status: 1 }, () => {
       });
     }
   }

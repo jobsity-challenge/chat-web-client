@@ -198,7 +198,7 @@ const mutations = {
     /* Update active users */
     if (payload.status === 1 && tmp < 0) {
       state.activeUsers.push(payload.user);
-    } else if (payload.status === 0 && tmp >= 0) {
+    } else if (payload.status !== 1 && tmp >= 0) {
       state.activeUsers.splice(tmp, 1);
     }
   },
@@ -262,9 +262,8 @@ const mutations = {
     while (itr < state.myChatrooms.length && state.myChatrooms[itr].id !== payload.chatroom) {
       itr++;
     }
-
     if (itr < state.myChatrooms.length) {
-      state.myChatrooms[itr].writing = payload.status === 1;
+      state.myChatrooms[itr].writing = (payload.status === 1);
     }
   },
 
